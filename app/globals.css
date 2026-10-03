@@ -10351,3 +10351,14 @@ img {
   .admin-application-status { grid-column: 2; justify-self: start; }
   .admin-seller-management-actions { grid-column: 2; justify-content: flex-start; }
 }
+.admin-nav {
+  gap: 10px;
+}
+.admin-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.admin-nav-group .admin-nav-caption {
+  margin: 0 0 3px 8px;
+}

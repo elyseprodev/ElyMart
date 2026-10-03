@@ -89,6 +89,14 @@ const navItems: { label: AdminView; icon: LucideIcon; badge?: string }[] = [
   { label: "Settings", icon: Settings },
 ];
 
+const navGroups: { heading: string; items: AdminView[] }[] = [
+  { heading: "OVERVIEW", items: ["Dashboard", "Reports & Analytics"] },
+  { heading: "SALES & CATALOGUE", items: ["Orders", "Products", "Categories", "Promotions"] },
+  { heading: "PEOPLE & TRUST", items: ["Sellers", "Customers", "Reviews"] },
+  { heading: "OPERATIONS", items: ["Delivery & Agents", "Payments", "Support Tickets"] },
+  { heading: "SYSTEM", items: ["Settings"] },
+];
+
 const sampleOrders: SampleOrder[] = [
   { id: "ELY-10482", customer: "Aline M.", initials: "AM", date: "02 Oct 2026", amount: 78500, status: "Processing", method: "MTN MoMo" },
   { id: "ELY-10481", customer: "Jean R.", initials: "JR", date: "02 Oct 2026", amount: 18500, status: "Delivered", method: "Airtel Money" },
@@ -297,10 +305,17 @@ export default function SuperAdminDashboard() {
         </Link>
         <div className="admin-workspace"><span className="admin-workspace-icon"><ShieldCheck size={15} /></span><span><small>WORKSPACE</small><strong>Marketplace admin</strong></span><ChevronDown size={13} /></div>
         <nav className="admin-nav" aria-label="Super admin sections">
-          <span className="admin-nav-caption">OVERVIEW</span>
-          {navItems.map(({ label, icon: Icon, badge }) => <button key={label} type="button" className={`admin-nav-item ${activeView === label ? "active" : ""}`} onClick={() => setView(label)} aria-current={activeView === label ? "page" : undefined}>
-            <Icon size={16} strokeWidth={1.9} /><span>{label}</span>{label === "Sellers" ? <i>{pendingSellers}</i> : badge && <i>{badge}</i>}
-          </button>)}
+          {navGroups.map((group) => <div className="admin-nav-group" key={group.heading}>
+            <span className="admin-nav-caption">{group.heading}</span>
+            {group.items.map((label) => {
+              const item = navItems.find((navItem) => navItem.label === label);
+              if (!item) return null;
+              const Icon = item.icon;
+              return <button key={label} type="button" className={`admin-nav-item ${activeView === label ? "active" : ""}`} onClick={() => setView(label)} aria-current={activeView === label ? "page" : undefined}>
+                <Icon size={16} strokeWidth={1.9} /><span>{label}</span>{label === "Sellers" ? <i>{pendingSellers}</i> : item.badge && <i>{item.badge}</i>}
+              </button>;
+            })}
+          </div>)}
         </nav>
         <div className="admin-sidebar-card"><span className="admin-sidebar-card-icon"><Activity size={16} /></span><strong>Marketplace health</strong><p>Everything in this dashboard is example data for your admin concept.</p><span className="admin-sidebar-status"><i /> Demo mode active</span></div>
         <div className="admin-sidebar-bottom"><Link href="/" className="admin-back-link"><ArrowRight size={14} /> View storefront</Link><span>ELYMART ADMIN · PREVIEW 0.1</span></div>
