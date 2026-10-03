@@ -86,6 +86,7 @@ const categorySearchTerms: Record<string, string> = {
   Electronics: "electronic tech phone smartphone mobile laptop tablet earbuds headphones",
   Shoes: "shoe footwear sneakers trainers boots sandals loafers",
   Clothing: "clothes apparel fashion outfit shirt jeans dress jacket",
+  "Beauty & Personal Care": "beauty skincare skin care makeup haircare hair care shampoo conditioner lotion cleanser serum sunscreen shea butter",
 };
 
 const heroImages = {

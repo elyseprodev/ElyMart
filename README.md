@@ -19,7 +19,7 @@ npm run build
 
 ## What works in this preview
 
-- Responsive marketplace homepage with category navigation, product search, sort controls, stock filtering, and category-only result views. The preview catalog includes 36 listings, including electronics, shoes, and clothing; selecting a category shows only that category’s products.
+- Responsive marketplace homepage with category navigation, product search, sort controls, stock filtering, and category-only result views. The preview catalog includes 42 listings across groceries, food, beauty and personal care, electronics, shoes, and clothing; selecting a category shows only that category’s products.
 - Store directory at `/stores` with shop search, locally saved Follow buttons, and links to each shop’s preview listings.
 - Offers page at `/offers` with sample coupon concepts and markdown-priced products; codes are not redeemable in this preview.
 - Orders page at `/orders` for locally saved preview orders.

@@ -14,6 +14,12 @@ These are illustrative preview listing images, not seller-supplied inventory pho
 - `shoes-running.jpg`
 - `shoes-loafers.jpg`
 - `shoes-sandals.jpg`
+- `beauty-shea-butter.jpg`
+- `beauty-face-cleanser.jpg`
+- `beauty-body-lotion.jpg`
+- `beauty-haircare-duo.jpg`
+- `beauty-face-serum.jpg`
+- `beauty-sunscreen.jpg`
 
 ## Pexels preview photos
 
