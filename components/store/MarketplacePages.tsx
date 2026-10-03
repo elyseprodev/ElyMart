@@ -10,6 +10,7 @@ import {
   Check,
   ChevronRight,
   Copy,
+  CreditCard,
   Heart,
   MapPin,
   Search,
@@ -98,6 +99,18 @@ const sampleStores: StorePreview[] = [
     monogram: "C",
     tone: "blue",
     followers: 29,
+  },
+  {
+    id: "umurava-juices",
+    name: "Umurava Juices",
+    brand: "Umurava Juices",
+    category: "Juices & local drinks",
+    description: "Fruit juices and hibiscus-ginger refreshers in this Kigali-inspired preview shop.",
+    area: "Kigali",
+    image: "/catalog/drinks-passion-fruit-juice.jpg",
+    monogram: "U",
+    tone: "orange",
+    followers: 31,
   },
   {
     id: "tamba-supermarket",
@@ -316,6 +329,16 @@ export type PreviewOrder = {
   total: number;
 };
 
+function paymentMethodLabel(method: string) {
+  const labels: Record<string, string> = {
+    momo: "Mobile Money",
+    "mtn-momo": "MTN MoMo",
+    "airtel-money": "Airtel Money",
+    cod: "Pay on delivery",
+  };
+  return labels[method] ?? "Payment method not specified";
+}
+
 export function OrdersPage({ orders }: { orders: PreviewOrder[] }) {
   return (
     <section className="orders-page container-wide" aria-labelledby="orders-page-heading">
@@ -334,6 +357,7 @@ export function OrdersPage({ orders }: { orders: PreviewOrder[] }) {
               <div className="preview-order-details"><span>{new Date(order.createdAt).toLocaleString("en-RW", { dateStyle: "medium", timeStyle: "short" })}</span><span>{order.items.reduce((sum, item) => sum + item.quantity, 0)} items</span><strong>RWF {new Intl.NumberFormat("en-RW").format(order.total)}</strong></div>
               <div className="preview-order-items">{order.items.map((item) => <span key={item.productId}>{item.quantity} × {item.name}</span>)}</div>
               <p><MapPin size={13} /> {order.address}, {order.district} · {order.name}</p>
+              <div className="preview-order-payment"><CreditCard size={13} /><span><strong>{paymentMethodLabel(order.paymentMethod)}</strong> · {order.paymentStatus || "unpaid · preview"}</span></div>
             </article>
           ))}
         </div>

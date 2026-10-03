@@ -87,6 +87,7 @@ const categorySearchTerms: Record<string, string> = {
   Shoes: "shoe footwear sneakers trainers boots sandals loafers",
   Clothing: "clothes apparel fashion outfit shirt jeans dress jacket",
   "Beauty & Personal Care": "beauty skincare skin care makeup haircare hair care shampoo conditioner lotion cleanser serum sunscreen shea butter",
+  "Beverages & Spirits": "beverage beverages drink drinks juice water soda soft drink milk tea coffee",
 };
 
 const heroImages = {
@@ -122,7 +123,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
   const [toast, setToast] = useState<ToastData | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("momo");
+  const [paymentMethod, setPaymentMethod] = useState("mtn-momo");
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterDone, setNewsletterDone] = useState(false);
 
@@ -389,7 +390,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
       address,
       district,
       paymentMethod,
-      paymentStatus: paymentMethod === "cod" ? "due on delivery" : "awaiting payment confirmation",
+      paymentStatus: paymentMethod === "cod" ? "due on delivery · preview" : "not processed · unpaid",
       createdAt: new Date().toISOString(),
       items: cartLines.map(({ product, quantity }) => ({ productId: product.id, quantity, name: product.name, price: product.price })),
       total: cartTotal,
@@ -603,7 +604,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
 
       <section className="category-section container-wide" aria-labelledby="category-heading">
         <div className="section-heading-row category-heading-row">
-          <div><span className="section-kicker">BROWSE THE MARKETPLACE</span><h2 id="category-heading">Shop by category.</h2><p>Shop fresh food, electronics, shoes, clothing, and everyday essentials from Rwanda&apos;s sellers.</p></div>
+          <div><span className="section-kicker">BROWSE THE MARKETPLACE</span><h2 id="category-heading">Shop by category.</h2><p>Shop fresh food, beverages, beauty and personal care, electronics, shoes, and clothing from Rwanda&apos;s sellers.</p></div>
           <button className="inline-link" onClick={() => chooseCategory("All products")}>Explore all <ArrowRight size={16} /></button>
         </div>
         <div className="category-grid">
@@ -635,7 +636,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
       <section className="product-section container-wide" id="shop-products" aria-labelledby="products-heading">
         <div className="product-section-top">
           <div className="section-heading-row products-heading-row">
-            <div><span className="section-kicker">{activeCategory !== "All products" ? `SHOP ${activeCategory.toUpperCase()}` : appliedQuery ? "SEARCH THE MARKETPLACE" : "FROM MARKET STALLS TO LOCAL KITCHENS"}</span><h2 id="products-heading">{activeCategory !== "All products" ? activeCategory : appliedQuery ? "Search results" : "Popular right now."}</h2><p>{appliedQuery ? `Showing results for “${appliedQuery}”` : activeCategory !== "All products" ? `A fresh look at ${activeCategory.toLowerCase()}.` : dealsOnly ? "A few lovely price drops, just for you." : activeTab === "Food" ? "A few good bites from kitchens around Kigali." : activeTab === "Essentials" ? "Helpful little things for your home and everyday." : "Browse fresh market picks, electronics, shoes, clothing, and more."}</p></div>
+            <div><span className="section-kicker">{activeCategory !== "All products" ? `SHOP ${activeCategory.toUpperCase()}` : appliedQuery ? "SEARCH THE MARKETPLACE" : "FROM MARKET STALLS TO LOCAL KITCHENS"}</span><h2 id="products-heading">{activeCategory !== "All products" ? activeCategory : appliedQuery ? "Search results" : "Popular right now."}</h2><p>{appliedQuery ? `Showing results for “${appliedQuery}”` : activeCategory !== "All products" ? `A fresh look at ${activeCategory.toLowerCase()}.` : dealsOnly ? "A few lovely price drops, just for you." : activeTab === "Food" ? "A few good bites from kitchens around Kigali." : activeTab === "Essentials" ? "Helpful little things for your home and everyday." : "Browse groceries, beverages, beauty, electronics, shoes, clothing, and more."}</p></div>
             <div className="desktop-stock-toggle"><label><input type="checkbox" checked={inStockOnly} onChange={(event) => setInStockOnly(event.target.checked)} /><span className="toggle-track" /> In stock</label></div>
           </div>
           <div className="product-tools-row">
@@ -769,11 +770,32 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
             <div className="checkout-modal-header"><div><span className="drawer-kicker">JUST A FEW MORE DETAILS</span><h2 id="checkout-title">Make it yours.</h2><p>This preview records an order on this device only. No payment is processed.</p></div><button className="modal-close" onClick={() => setCheckoutOpen(false)} aria-label="Close checkout"><X size={20} /></button></div>
             <form className="checkout-form" onSubmit={placeDemoOrder}>
               <div className="checkout-fields"><label>Full name<input name="name" autoComplete="name" placeholder="e.g. Aline Mukamana" required /></label><label>Phone number<input name="phone" type="tel" autoComplete="tel" placeholder="+250 7XX XXX XXX" required /></label><label className="checkout-full">Delivery address<input name="address" autoComplete="street-address" placeholder="Street, building, or nearby landmark" required /></label><label>District<select name="district" defaultValue="" required><option value="" disabled>Select district</option><option>Kigali</option><option>Musanze</option><option>Huye</option><option>Rubavu</option><option>Other</option></select></label><label>Delivery area<select defaultValue={deliveryLocation.split(",")[0]}><option>Kigali</option><option>Musanze</option><option>Huye</option><option>Rubavu</option></select></label></div>
-              <div className="payment-options"><strong>How would you like to pay?</strong><label className={paymentMethod === "momo" ? "payment-option selected" : "payment-option"}><input type="radio" name="payment" value="momo" checked={paymentMethod === "momo"} onChange={() => setPaymentMethod("momo")} /><span className="payment-option-icon momo-icon">M</span><span><b>Mobile Money</b><small>MTN MoMo or Airtel Money · preview</small></span><span className="radio-indicator" /></label><label className={paymentMethod === "cod" ? "payment-option selected" : "payment-option"}><input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} /><span className="payment-option-icon"><CreditCard size={17} /></span><span><b>Pay on delivery</b><small>Payment due when your order arrives</small></span><span className="radio-indicator" /></label></div>
+              <div className="payment-options">
+                <strong>Choose a payment method</strong>
+                <label className={paymentMethod === "mtn-momo" ? "payment-option selected" : "payment-option"}>
+                  <input type="radio" name="payment" value="mtn-momo" checked={paymentMethod === "mtn-momo"} onChange={() => setPaymentMethod("mtn-momo")} />
+                  <span className="payment-option-icon momo-icon">M</span>
+                  <span><b>MTN MoMo</b><small>Saved with your preview order · not processed</small></span>
+                  <span className="radio-indicator" />
+                </label>
+                <label className={paymentMethod === "airtel-money" ? "payment-option selected" : "payment-option"}>
+                  <input type="radio" name="payment" value="airtel-money" checked={paymentMethod === "airtel-money"} onChange={() => setPaymentMethod("airtel-money")} />
+                  <span className="payment-option-icon airtel-icon">A</span>
+                  <span><b>Airtel Money</b><small>Saved with your preview order · not processed</small></span>
+                  <span className="radio-indicator" />
+                </label>
+                <label className={paymentMethod === "cod" ? "payment-option selected" : "payment-option"}>
+                  <input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
+                  <span className="payment-option-icon"><Truck size={17} /></span>
+                  <span><b>Pay on delivery</b><small>Cash due on delivery · preview only</small></span>
+                  <span className="radio-indicator" />
+                </label>
+                <p className="payment-preview-disclosure">Payment methods are recorded for preview only. No charge is sent or confirmed.</p>
+              </div>
               <div className="checkout-total-row"><span>Order total</span><strong>{formatPrice(cartTotal)}</strong></div>
               {checkoutError && <p className="checkout-error" role="alert">{checkoutError}</p>}
               <button className="checkout-button" type="submit">Save preview order <ArrowRight size={17} /></button>
-              <span className="checkout-safety"><ShieldCheck size={13} /> No card or payment details are collected in this preview.</span>
+              <span className="checkout-safety"><ShieldCheck size={13} /> No payment is sent, taken, or marked paid in this preview.</span>
             </form>
           </motion.div>
         </motion.div>}

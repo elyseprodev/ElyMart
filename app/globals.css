@@ -10772,3 +10772,33 @@ img {
   padding-top: 26px;
   scroll-margin-top: 100px;
 }
+
+.airtel-icon {
+  color: #fff;
+  background: #e5272d;
+  font-size: 14px;
+  font-weight: 850;
+}
+.payment-preview-disclosure {
+  color: #8d9991;
+  margin: 9px 0 0;
+  font-size: 8px;
+  line-height: 1.5;
+}
+.preview-order-payment {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  color: #79867d;
+  font-size: 8px;
+  line-height: 1.4;
+}
+.preview-order-payment svg {
+  flex: none;
+  color: #73895f;
+}
+.preview-order-payment strong {
+  color: #46584b;
+  font-weight: 700;
+}

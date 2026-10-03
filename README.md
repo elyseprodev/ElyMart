@@ -1,6 +1,6 @@
 # ElyMart
 
-A green-led, Rwanda-focused marketplace preview for **ElyMart — Shop Smarter, Live Better.** The storefront brings together groceries, prepared food, everyday essentials, electronics, shoes, and clothing, while preserving the seller workflow for adding and managing product listings.
+A green-led, Rwanda-focused marketplace preview for **ElyMart — Shop Smarter, Live Better.** The storefront brings together groceries, prepared food and beverages, everyday essentials, beauty and personal care, electronics, shoes, and clothing, while preserving the seller workflow for adding and managing product listings.
 
 ## Run locally
 
@@ -19,12 +19,12 @@ npm run build
 
 ## What works in this preview
 
-- Responsive marketplace homepage with category navigation, product search, sort controls, stock filtering, and category-only result views. The preview catalog includes 42 listings across groceries, food, beauty and personal care, electronics, shoes, and clothing; selecting a category shows only that category’s products.
+- Responsive marketplace homepage with category navigation, product search, sort controls, stock filtering, and category-only result views. The preview catalog includes 48 listings across groceries, food and beverages, beauty and personal care, electronics, shoes, and clothing; selecting a category shows only that category’s products.
 - Store directory at `/stores` with shop search, locally saved Follow buttons, and links to each shop’s preview listings.
 - Offers page at `/offers` with sample coupon concepts and markdown-priced products; codes are not redeemable in this preview.
 - Orders page at `/orders` for locally saved preview orders.
 - Super-admin concept at `/admin` with sample KPIs/charts, seller-review actions, search, CSV export, and local-only settings.
-- Product quick view, wishlist, quantity-aware cart, sample delivery-fee calculation, and a preview checkout flow.
+- Product quick view, wishlist, quantity-aware cart, sample delivery-fee calculation, and preview checkout choices for MTN MoMo, Airtel Money, or pay on delivery. Orders are saved unpaid; no payment provider is connected.
 - Seller studio at `/seller`, including add/edit/delete product listings, inventory counts, image URL or small image upload, store settings, and locally saved preview orders.
 - Seller-created products appear in the storefront immediately. Storefront products, cart, wishlist, seller profile, and preview orders persist in the current browser using `localStorage`.
 - Seed shops, product details, prices, stock, and delivery fees are preview data. Checkout and newsletter forms do not send payments or emails.

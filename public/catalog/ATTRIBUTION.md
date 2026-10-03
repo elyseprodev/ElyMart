@@ -20,6 +20,12 @@ These are illustrative preview listing images, not seller-supplied inventory pho
 - `beauty-haircare-duo.jpg`
 - `beauty-face-serum.jpg`
 - `beauty-sunscreen.jpg`
+- `drinks-mineral-water.jpg`
+- `drinks-passion-fruit-juice.jpg`
+- `drinks-hibiscus-ginger.jpg`
+- `drinks-fresh-milk.jpg`
+- `drinks-lemon-sparkling-water.jpg`
+- `drinks-cold-brew-coffee.jpg`
 
 ## Pexels preview photos
 
