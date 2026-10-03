@@ -11,6 +11,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   BadgeCheck,
+  Bell,
   Boxes,
   Check,
   CupSoda,
@@ -31,7 +32,6 @@ import {
   ShieldCheck,
   Shirt,
   ShoppingBag,
-  ShoppingCart,
   Sparkles,
   Utensils,
   Star,
@@ -420,6 +420,14 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
             <span className="brand-word">ely<span>mart</span><small>SHOP SMARTER, LIVE BETTER</small></span>
           </button>
 
+          <nav className="header-inline-nav" aria-label="Main navigation">
+            <Link href="/" className={view === "home" ? "header-inline-link active" : "header-inline-link"}>Home</Link>
+            <button type="button" className="header-inline-link" onClick={scrollToCategories}>Categories</button>
+            <Link href="/offers" className={view === "offers" ? "header-inline-link active" : "header-inline-link"}>Offers</Link>
+            <Link href="/stores" className={view === "stores" ? "header-inline-link active" : "header-inline-link"}>Stores</Link>
+            <Link href="/orders" className={view === "orders" ? "header-inline-link active" : "header-inline-link"}>Orders</Link>
+          </nav>
+
           <form className="header-search" onSubmit={(event) => { event.preventDefault(); applySearch(); }} role="search">
             <Search size={19} className="search-icon" aria-hidden="true" />
             <input
@@ -427,7 +435,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
               onChange={(event) => setQuery(event.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => window.setTimeout(() => setSearchFocused(false), 150)}
-              placeholder="Search products and stores..."
+              placeholder="Search products & stores…"
               aria-label="Search products and stores"
             />
             {query && <button type="button" className="search-clear" onClick={() => { setQuery(""); setAppliedQuery(""); }} aria-label="Clear search"><X size={15} /></button>}
@@ -473,9 +481,9 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
               </AnimatePresence>
             </div>
             <div className="header-popover-anchor account-anchor">
-              <button className="account-control" onClick={() => { setAccountMenu((open) => !open); setLocationMenu(false); }} aria-expanded={accountMenu}>
+              <button className="account-control" onClick={() => { setAccountMenu((open) => !open); setLocationMenu(false); }} aria-expanded={accountMenu} aria-label="Sign in or open your account menu">
                 <span className="account-avatar">E</span>
-                <span><small>Hello, welcome</small><strong>My account</strong></span>
+                <span className="account-signin-label">Sign in</span>
                 <ChevronDown size={13} />
               </button>
               <AnimatePresence>
@@ -488,12 +496,16 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
                 </motion.div>}
               </AnimatePresence>
             </div>
+            <button className="header-action-icon notification-head" onClick={() => notify("No new notifications", "Order and account alerts will appear here in the live service.")} aria-label="Notifications">
+              <span className="header-icon-wrap"><Bell size={20} /></span>
+              <span className="header-action-label">Notifications</span>
+            </button>
             <button className="header-action-icon wishlist-head" onClick={() => setShowWishlist(true)} aria-label={`Open wishlist with ${wishlist.length} items`}>
               <span className="header-icon-wrap"><Heart size={21} />{wishlist.length > 0 && <b className="action-count">{wishlist.length}</b>}</span>
               <span className="header-action-label">Saved</span>
             </button>
-            <button className="header-action-icon cart-head" onClick={() => setShowCart(true)} aria-label={`Open cart with ${cartCount} items`}>
-              <span className="header-icon-wrap"><ShoppingCart size={22} />{cartCount > 0 && <b className="action-count cart-count">{cartCount}</b>}</span>
+            <button className="header-action-icon cart-head" onClick={() => setShowCart(true)} aria-label={`Open bag with ${cartCount} items`}>
+              <span className="header-icon-wrap"><ShoppingBag size={21} />{cartCount > 0 && <b className="action-count cart-count">{cartCount}</b>}</span>
               <span className="header-action-label">Bag</span>
             </button>
           </div>
