@@ -10750,3 +10750,25 @@ img {
     display: none;
   }
 }
+
+/* Keep filtered category/search views focused on the selected catalog results. */
+.category-tile[aria-pressed="true"] {
+  border-color: #91bd91;
+  box-shadow: 0 0 0 2px #e7f2df;
+}
+.catalog-only-mode .hero-section,
+.catalog-only-mode .service-strip,
+.catalog-only-mode .stores-section,
+.catalog-only-mode .food-picks-section,
+.catalog-only-mode .seller-invite,
+.catalog-only-mode .how-it-works-section,
+.catalog-only-mode .newsletter-section {
+  display: none;
+}
+.catalog-only-mode .category-section {
+  padding-top: 24px;
+}
+.catalog-only-mode .product-section {
+  padding-top: 26px;
+  scroll-margin-top: 100px;
+}

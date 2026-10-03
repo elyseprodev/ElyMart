@@ -78,7 +78,14 @@ const categoryIcons: Record<string, CategoryIcon> = {
   "Toys & Games": Gamepad2,
   "Sports & Outdoors": Dumbbell,
   Clothing: Shirt,
+  Shoes: ShoppingBag,
   "Gifts & Occasions": Gift,
+};
+
+const categorySearchTerms: Record<string, string> = {
+  Electronics: "electronic tech phone smartphone mobile laptop tablet earbuds headphones",
+  Shoes: "shoe footwear sneakers trainers boots sandals loafers",
+  Clothing: "clothes apparel fashion outfit shirt jeans dress jacket",
 };
 
 const heroImages = {
@@ -207,7 +214,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
     const normalizedQuery = appliedQuery.trim().toLowerCase();
     let result = products.filter((product) => {
       const matchesCategory = activeCategory === "All products" || product.category === activeCategory;
-      const searchable = `${product.name} ${product.brand} ${product.category} ${product.description}`.toLowerCase();
+      const searchable = `${product.name} ${product.brand} ${product.category} ${categorySearchTerms[product.category] ?? ""} ${product.description}`.toLowerCase();
       const matchesQuery = !normalizedQuery || searchable.includes(normalizedQuery);
       return matchesCategory && matchesQuery && (!inStockOnly || product.stock > 0) && (!dealsOnly || Boolean(product.compareAt));
     });
@@ -232,11 +239,11 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
     const term = query.trim().toLowerCase();
     if (term.length < 2) return [];
     const matchingProducts = products
-      .filter((product) => `${product.name} ${product.brand} ${product.category}`.toLowerCase().includes(term))
+      .filter((product) => `${product.name} ${product.brand} ${product.category} ${categorySearchTerms[product.category] ?? ""}`.toLowerCase().includes(term))
       .slice(0, 3)
       .map((product) => ({ label: product.name, detail: product.category, product }));
     const matchingCategories = categories
-      .filter((category) => products.some((product) => product.category === category) && category.toLowerCase().includes(term))
+      .filter((category) => products.some((product) => product.category === category) && `${category} ${categorySearchTerms[category] ?? ""}`.toLowerCase().includes(term))
       .slice(0, 2)
       .map((category) => ({ label: category, detail: "Category", product: null as Product | null }));
     return [...matchingProducts, ...matchingCategories].slice(0, 5);
@@ -291,6 +298,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
   function applySearch(value = query) {
     setSearchFocused(false);
     setMobileMenu(false);
+    setActiveTab("Popular");
     if (view !== "home") {
       router.push(`/?q=${encodeURIComponent(value.trim())}`);
       return;
@@ -402,7 +410,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
   }
 
   return (
-    <main className="storefront-shell">
+    <main className={`storefront-shell${view === "home" && (activeCategory !== "All products" || appliedQuery) ? " catalog-only-mode" : ""}`}>
       <div className="announcement-bar">
         <div className="announcement-inner">
           <span><MapPin size={14} /> Made for Rwanda, starting in Kigali</span>
@@ -529,7 +537,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
           </div>
           <div className="mobile-category-heading">Browse categories</div>
           <div className="mobile-category-list">
-            {categories.filter((category) => products.some((product) => product.category === category)).slice(0, 8).map((category) => <button key={category} onClick={() => chooseCategory(category)}>{category}<ChevronRight size={15} /></button>)}
+            {categories.filter((category) => products.some((product) => product.category === category)).map((category) => <button key={category} onClick={() => chooseCategory(category)}>{category}<ChevronRight size={15} /></button>)}
           </div>
           <Link href="/seller" className="mobile-seller-link" onClick={() => setMobileMenu(false)}><Store size={15} /> Sell on ElyMart <ArrowUpRight size={13} /></Link>
         </nav>
@@ -594,13 +602,13 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
 
       <section className="category-section container-wide" aria-labelledby="category-heading">
         <div className="section-heading-row category-heading-row">
-          <div><span className="section-kicker">BROWSE THE MARKETPLACE</span><h2 id="category-heading">Shop by category.</h2><p>Fresh food, home essentials, and more from Rwanda&apos;s sellers.</p></div>
+          <div><span className="section-kicker">BROWSE THE MARKETPLACE</span><h2 id="category-heading">Shop by category.</h2><p>Shop fresh food, electronics, shoes, clothing, and everyday essentials from Rwanda&apos;s sellers.</p></div>
           <button className="inline-link" onClick={() => chooseCategory("All products")}>Explore all <ArrowRight size={16} /></button>
         </div>
         <div className="category-grid">
-          {categories.filter((category) => products.some((product) => product.category === category)).slice(0, 10).map((category, index) => {
+          {categories.filter((category) => products.some((product) => product.category === category)).map((category, index) => {
             const Icon = categoryIcons[category] ?? Sparkles;
-            return <button className={`category-tile category-tone-${index % 5}`} key={category} onClick={() => chooseCategory(category)}>
+            return <button className={`category-tile category-tone-${index % 5}`} key={category} onClick={() => chooseCategory(category)} aria-pressed={activeCategory === category}>
               <span className="category-art"><Icon size={24} strokeWidth={1.7} /></span>
               <span>{category}</span><ArrowUpRight className="category-arrow" size={13} />
             </button>;
@@ -626,13 +634,13 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
       <section className="product-section container-wide" id="shop-products" aria-labelledby="products-heading">
         <div className="product-section-top">
           <div className="section-heading-row products-heading-row">
-            <div><span className="section-kicker">FROM MARKET STALLS TO LOCAL KITCHENS</span><h2 id="products-heading">Popular right now.</h2><p>{appliedQuery ? `Showing results for “${appliedQuery}”` : activeCategory !== "All products" ? `A fresh look at ${activeCategory.toLowerCase()}.` : dealsOnly ? "A few lovely price drops, just for you." : activeTab === "Food" ? "A few good bites from kitchens around Kigali." : activeTab === "Essentials" ? "Helpful little things for your home and everyday." : "Fresh market picks, everyday groceries, and dinner favorites."}</p></div>
+            <div><span className="section-kicker">{activeCategory !== "All products" ? `SHOP ${activeCategory.toUpperCase()}` : appliedQuery ? "SEARCH THE MARKETPLACE" : "FROM MARKET STALLS TO LOCAL KITCHENS"}</span><h2 id="products-heading">{activeCategory !== "All products" ? activeCategory : appliedQuery ? "Search results" : "Popular right now."}</h2><p>{appliedQuery ? `Showing results for “${appliedQuery}”` : activeCategory !== "All products" ? `A fresh look at ${activeCategory.toLowerCase()}.` : dealsOnly ? "A few lovely price drops, just for you." : activeTab === "Food" ? "A few good bites from kitchens around Kigali." : activeTab === "Essentials" ? "Helpful little things for your home and everyday." : "Browse fresh market picks, electronics, shoes, clothing, and more."}</p></div>
             <div className="desktop-stock-toggle"><label><input type="checkbox" checked={inStockOnly} onChange={(event) => setInStockOnly(event.target.checked)} /><span className="toggle-track" /> In stock</label></div>
           </div>
           <div className="product-tools-row">
-            <div className="product-tabs" role="tablist" aria-label="Product collections">
+            {activeCategory === "All products" && !appliedQuery && <div className="product-tabs" role="tablist" aria-label="Product collections">
               {["Popular", "Food", "Essentials", "New in"].map((tab) => <button key={tab} role="tab" aria-selected={activeTab === tab} className={activeTab === tab ? "product-tab active" : "product-tab"} onClick={() => setActiveTab(tab)}>{tab === "Food" ? "Food & drink" : tab === "Essentials" ? "Everyday essentials" : tab}{tab === "New in" && <span className="tab-new-dot" />}</button>)}
-            </div>
+            </div>}
             <div className="product-filter-tools">
               <span className="result-count">{filteredProducts.length} lovely {filteredProducts.length === 1 ? "find" : "finds"}</span>
               <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} aria-label="Sort products">
@@ -652,7 +660,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
 
         {filteredProducts.length > 0 ? <motion.div className="product-grid" layout>
           <AnimatePresence mode="popLayout">
-            {filteredProducts.slice(0, 10).map((product) => <motion.div key={product.id} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .97 }} transition={{ duration: .22 }}>
+            {filteredProducts.map((product) => <motion.div key={product.id} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .97 }} transition={{ duration: .22 }}>
               <ProductCard product={product} wished={wishlist.includes(product.id)} onWishlist={toggleWishlist} onAdd={addToCart} onQuickView={setQuickView} />
             </motion.div>)}
           </AnimatePresence>

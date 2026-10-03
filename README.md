@@ -1,6 +1,6 @@
 # ElyMart
 
-A green-led, Rwanda-focused marketplace preview for **ElyMart — Shop Smarter, Live Better.** The current storefront is centered on groceries, prepared food, and everyday essentials, while preserving the seller workflow for adding and managing product listings.
+A green-led, Rwanda-focused marketplace preview for **ElyMart — Shop Smarter, Live Better.** The storefront brings together groceries, prepared food, everyday essentials, electronics, shoes, and clothing, while preserving the seller workflow for adding and managing product listings.
 
 ## Run locally
 
@@ -19,7 +19,7 @@ npm run build
 
 ## What works in this preview
 
-- Responsive marketplace homepage with category navigation, product search, sort controls, stock filtering, and grocery/food listings.
+- Responsive marketplace homepage with category navigation, product search, sort controls, stock filtering, and category-only result views. The preview catalog includes 36 listings, including electronics, shoes, and clothing; selecting a category shows only that category’s products.
 - Store directory at `/stores` with shop search, locally saved Follow buttons, and links to each shop’s preview listings.
 - Offers page at `/offers` with sample coupon concepts and markdown-priced products; codes are not redeemable in this preview.
 - Orders page at `/orders` for locally saved preview orders.
