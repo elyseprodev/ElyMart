@@ -10323,6 +10323,45 @@ img {
   font-size: 12px;
   line-height: 1.45;
 }
+.admin-login-notice {
+  margin: 2px 0;
+  padding: 10px 11px;
+  color: #32684a;
+  background: #eef8ef;
+  border: 1px solid #d9ebdc;
+  border-radius: 7px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.admin-login-intro strong {
+  color: #385d47;
+  white-space: nowrap;
+}
+.admin-login-code-help {
+  margin-top: -3px;
+  color: #839188;
+  font-size: 11px;
+}
+.admin-login-change-email,
+.admin-login-resend {
+  justify-self: start;
+  padding: 3px 0;
+  color: #367654;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.admin-login-change-email:hover,
+.admin-login-resend:hover:not(:disabled) {
+  color: #105d39;
+  text-decoration: underline;
+}
+.admin-login-resend:disabled {
+  cursor: wait;
+  opacity: .65;
+}
 .admin-login-submit {
   display: flex;
   align-items: center;
