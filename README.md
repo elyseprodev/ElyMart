@@ -6,10 +6,22 @@ A green-led, Rwanda-focused marketplace preview for **ElyMart — Shop Smarter, 
 
 ```bash
 npm install
+cp .env.example .env.local
+```
+
+Edit `.env.local` and set `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET`. Use the desired admin email, choose a new unique password, and generate the session secret with:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+Keep `.env.local` private; it is ignored by Git. Do not put credentials in source code or commits. Start the app:
+
+```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Production checks:
+Open [http://localhost:3000](http://localhost:3000). The super-admin sign-in is at `/admin`. Production checks:
 
 ```bash
 npm run typecheck
@@ -23,7 +35,8 @@ npm run build
 - Store directory at `/stores` with shop search, locally saved Follow buttons, and links to each shop’s preview listings.
 - Offers page at `/offers` with sample coupon concepts and markdown-priced products; codes are not redeemable in this preview.
 - Orders page at `/orders` for locally saved preview orders.
-- Super-admin concept at `/admin` with sample KPIs/charts, seller-review actions, search, CSV export, and local-only settings.
+- `/admin` now requires a server-verified super-admin sign-in configured with private environment variables. Admin sessions use a signed, HttpOnly, SameSite cookie with a 12-hour lifetime, and the login route applies a basic per-process attempt limit.
+- The admin Settings view can set a customer-facing WhatsApp number. The storefront’s WhatsApp support link opens a `wa.me` chat; the number is saved to an ignored local server data file for this preview.
 - Product quick view, wishlist, quantity-aware cart, sample delivery-fee calculation, and preview checkout choices for MTN MoMo, Airtel Money, or pay on delivery. Orders are saved unpaid; no payment provider is connected.
 - Seller studio at `/seller`, including add/edit/delete product listings, inventory counts, image URL or small image upload, store settings, and locally saved preview orders.
 - Seller-created products appear in the storefront immediately. Storefront products, cart, wishlist, seller profile, and preview orders persist in the current browser using `localStorage`.
@@ -36,13 +49,13 @@ npm run build
 - Lucide React icons and Framer Motion for lightweight interface details.
 - `lib/products.ts` is the preview catalog; `lib/storage.ts` contains the browser-only storage helpers.
 - `components/Storefront.tsx` contains the storefront interactions; `components/SellerDashboard.tsx` contains the seller listing workflow.
-- `components/admin/SuperAdminDashboard.tsx` is a demo-only admin surface. `/admin` is not authenticated or authorization-protected and must not be used for real administration.
+- `components/admin/SuperAdminDashboard.tsx` is an authenticated admin preview. `lib/admin-auth.ts` verifies server-side credentials from environment variables and signs admin sessions; `/api/admin/*` handles login/logout. The contact-number setting is served by `/api/support/whatsapp` and stored under the ignored `.elymart-data/` directory during local preview.
 
 ## Preview limitations / production work still required
 
-This repository began as an empty shell. This iteration is a functional front-end preview, **not yet a production marketplace backend**. Browser storage is device-local and is not a database or a secure source of truth. The project does not yet include MongoDB/Mongoose, user authentication, server-enforced roles, shared seller/customer accounts, product moderation, a payment gateway, verified payment callbacks, transactional inventory, email, or shipping-provider integrations. The preview checkout records a local order but never charges or marks an order paid. Do not deploy the preview flow as a live checkout.
+This repository began as an empty shell. This iteration is still a functional preview, **not a complete production marketplace backend**. The environment-configured super-admin login protects `/admin`, but customer and seller accounts, database-backed roles, and most marketplace actions are not implemented. Catalog, cart, wishlist, seller listings, and orders remain browser-local/sample data. The WhatsApp number is stored in a local JSON file for a single-server preview; production or multi-instance hosting needs shared persistent database storage. There is no payment gateway, verified payment callback, transactional inventory, email, or shipping-provider integration. Checkout records a local order but never charges or marks it paid. Do not deploy the preview flow as a live checkout.
 
-Before accepting real listings or orders, add server-side APIs and persistent storage, validate and sanitize every request on the server, implement authentication and role-based authorization, store uploaded images with an approved image service, and integrate payment/shipping providers with signature verification and idempotency. Keep all provider secrets on the server. The bundled catalogue photos are preview imagery sourced from Pexels/Unsplash; replace them with seller-approved media for a live catalog.
+Before accepting real listings or orders, add shared persistent storage and server-side APIs, validate and sanitize every request on the server, extend authentication and role-based authorization to customer/seller accounts and every administrative operation, store uploaded images with an approved image service, and integrate payment/shipping providers with signature verification and idempotency. Keep all provider secrets on the server. The bundled catalogue photos are preview imagery sourced from Pexels/Unsplash; replace them with seller-approved media for a live catalog.
 
 ## Product listing workflow
 

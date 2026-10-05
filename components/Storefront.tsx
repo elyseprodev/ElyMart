@@ -126,6 +126,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
   const [paymentMethod, setPaymentMethod] = useState("mtn-momo");
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterDone, setNewsletterDone] = useState(false);
+  const [whatsappPhone, setWhatsappPhone] = useState("");
 
   useEffect(() => {
     const savedProducts = readLocal<Product[]>(STORAGE_KEYS.products, []);
@@ -138,6 +139,14 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
     setOrders(savedOrders.filter((order) => order?.orderId && Array.isArray(order.items)));
     setWishlist(savedWishlist);
     setDeliveryLocation(savedLocation);
+    void fetch("/api/support/whatsapp", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) return "";
+        const result = (await response.json()) as { whatsappPhone?: unknown };
+        return typeof result.whatsappPhone === "string" ? result.whatsappPhone : "";
+      })
+      .then(setWhatsappPhone)
+      .catch(() => setWhatsappPhone(""));
     setReady(true);
   }, []);
 
@@ -211,6 +220,9 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
   const deliveryFee = cartSubtotal >= 50000 || cartSubtotal === 0 ? 0 : 2500;
   const cartTotal = cartSubtotal + deliveryFee;
   const wishedProducts = products.filter((product) => wishlist.includes(product.id));
+  const whatsappSupportHref = whatsappPhone
+    ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent("Hi ElyMart, I need help with an order.")}`
+    : "";
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = appliedQuery.trim().toLowerCase();
@@ -722,7 +734,7 @@ export default function Storefront({ view = "home" }: { view?: StorefrontView })
             <div className="social-links"><a href="https://www.instagram.com/" aria-label="Instagram" target="_blank" rel="noreferrer"><Instagram size={17} /></a><a href="https://www.facebook.com/" aria-label="Facebook" target="_blank" rel="noreferrer"><Facebook size={17} /></a><a href="mailto:hello@elymart.rw" aria-label="Email ElyMart"><MessageCircle size={17} /></a></div>
           </div>
           <div className="footer-link-group"><h3>Discover</h3><button onClick={() => { setActiveCategory("All products"); setActiveTab("Popular"); jumpToProducts(); }}>Shop all</button><button onClick={() => chooseCategory("Groceries")}>Groceries & produce</button><button onClick={() => chooseCategory("Food")}>Prepared food</button><button onClick={() => chooseCategory("Essentials")}>Everyday essentials</button><button onClick={() => { setActiveTab("Popular"); jumpToProducts(); }}>Popular right now</button></div>
-          <div className="footer-link-group"><h3>Here to help</h3><button onClick={() => notify("Help & support", "Our support team is here for your questions.")}>Help centre</button><button onClick={() => notify("Delivery information", "Delivery options depend on your location and seller.")}>Delivery information</button><button onClick={() => notify("Returns & exchanges", "Return options are shown with each eligible listing.")}>Returns & exchanges</button><button onClick={() => notify("Contact us", "Reach us at hello@elymart.rw.")}>Contact us</button><button onClick={() => notify("Track your order", "Order tracking will be available once a delivery partner is connected.")}>Track an order</button></div>
+          <div className="footer-link-group"><h3>Here to help</h3><button onClick={() => notify("Help & support", "Our support team is here for your questions.")}>Help centre</button><button onClick={() => notify("Delivery information", "Delivery options depend on your location and seller.")}>Delivery information</button><button onClick={() => notify("Returns & exchanges", "Return options are shown with each eligible listing.")}>Returns & exchanges</button><button onClick={() => notify("Contact us", "Reach us at hello@elymart.rw.")}>Contact us</button>{whatsappSupportHref ? <a href={whatsappSupportHref} target="_blank" rel="noopener noreferrer"><MessageCircle size={14} /> WhatsApp support</a> : <button onClick={() => notify("WhatsApp support", "The marketplace admin has not configured a WhatsApp number yet.")}><MessageCircle size={14} /> WhatsApp support</button>}<button onClick={() => notify("Track your order", "Order tracking will be available once a delivery partner is connected.")}>Track an order</button></div>
           <div className="footer-link-group footer-sell-group"><h3>Make it yours</h3><Link href="/seller"><Store size={15} /> Sell on ElyMart</Link><button onClick={() => { setShowWishlist(true); }}>Your wishlist</button><button onClick={() => notify("Our story", "A local marketplace with room for good things.")}>Our story</button><div className="footer-location"><MapPin size={15} /> Proudly made for Rwanda</div></div>
         </div>
         <div className="footer-bottom container-wide"><span>© {new Date().getFullYear()} ElyMart. Shop smarter, live better.</span><div><button onClick={() => notify("Privacy", "Privacy details will be published with the live service.")}>Privacy</button><button onClick={() => notify("Terms", "Terms will be published with the live service.")}>Terms</button><span className="footer-currency">RWF&nbsp; · &nbsp;Rwanda</span></div><span className="footer-demo-label">Preview storefront</span></div>

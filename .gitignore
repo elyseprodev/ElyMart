@@ -4,6 +4,7 @@ out/
 dist/
 coverage/
 *.tsbuildinfo
+.elymart-data/
 .env*
 !.env.example
 .DS_Store

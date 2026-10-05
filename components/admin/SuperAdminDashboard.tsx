@@ -28,6 +28,7 @@ import {
   LogOut,
   MapPin,
   Menu,
+  MessageCircle,
   MoreHorizontal,
   Package,
   PackageCheck,
@@ -145,7 +146,7 @@ const supportTickets = [
   ["#TK-0810", "Delivery area update", "Jean R.", "01 Oct 2026", "Open"],
 ];
 
-export default function SuperAdminDashboard() {
+export default function SuperAdminDashboard({ adminEmail }: { adminEmail: string }) {
   const [activeView, setActiveView] = useState<AdminView>("Dashboard");
   const [dateRange, setDateRange] = useState("Last 30 days");
   const [searchValue, setSearchValue] = useState("");
@@ -162,6 +163,10 @@ export default function SuperAdminDashboard() {
   const [settingsSaved, setSettingsSaved] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [autoApproveReviews, setAutoApproveReviews] = useState(false);
+  const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [whatsappSaving, setWhatsappSaving] = useState(false);
+  const [whatsappError, setWhatsappError] = useState("");
+  const [whatsappSaved, setWhatsappSaved] = useState(false);
 
   useEffect(() => {
     const savedProducts = readLocal<Product[]>(STORAGE_KEYS.products, []);
@@ -184,6 +189,13 @@ export default function SuperAdminDashboard() {
     setApplications(savedApplications);
     setMaintenanceMode(Boolean(savedSettings.maintenanceMode));
     setAutoApproveReviews(Boolean(savedSettings.autoApproveReviews));
+    void fetch("/api/support/whatsapp", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Could not load support settings.");
+        const result = (await response.json()) as { whatsappPhone?: unknown };
+        setWhatsappPhone(typeof result.whatsappPhone === "string" && result.whatsappPhone ? `+${result.whatsappPhone}` : "");
+      })
+      .catch(() => setWhatsappError("Could not load WhatsApp support settings from this server."));
 
     function syncLocal(event: Event) {
       const key = (event as CustomEvent<{ key?: string }>).detail?.key;
@@ -282,8 +294,40 @@ export default function SuperAdminDashboard() {
   function saveAdminSettings() {
     writeLocal("elymart_admin_settings_demo_v1", { maintenanceMode, autoApproveReviews });
     setSettingsSaved(true);
-    showToast("Demo settings saved on this device");
+    showToast("Demo preferences saved in this browser");
     window.setTimeout(() => setSettingsSaved(false), 1800);
+  }
+
+  async function saveWhatsAppNumber() {
+    setWhatsappError("");
+    setWhatsappSaving(true);
+    setWhatsappSaved(false);
+    try {
+      const response = await fetch("/api/support/whatsapp", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ whatsappPhone }),
+      });
+      const result = (await response.json()) as { whatsappPhone?: unknown; error?: string };
+      if (!response.ok) throw new Error(result.error || "Could not save the WhatsApp number.");
+      const savedPhone = typeof result.whatsappPhone === "string" ? result.whatsappPhone : "";
+      setWhatsappPhone(savedPhone ? `+${savedPhone}` : "");
+      setWhatsappSaved(true);
+      showToast(savedPhone ? "WhatsApp support number updated" : "WhatsApp support number cleared");
+      window.setTimeout(() => setWhatsappSaved(false), 2200);
+    } catch (error) {
+      setWhatsappError(error instanceof Error ? error.message : "Could not save the WhatsApp number.");
+    } finally {
+      setWhatsappSaving(false);
+    }
+  }
+
+  async function logoutAdmin() {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } finally {
+      window.location.assign("/admin");
+    }
   }
 
   function setView(view: AdminView) {
@@ -317,7 +361,7 @@ export default function SuperAdminDashboard() {
             })}
           </div>)}
         </nav>
-        <div className="admin-sidebar-card"><span className="admin-sidebar-card-icon"><Activity size={16} /></span><strong>Marketplace health</strong><p>Everything in this dashboard is example data for your admin concept.</p><span className="admin-sidebar-status"><i /> Demo mode active</span></div>
+        <div className="admin-sidebar-card"><span className="admin-sidebar-card-icon"><Activity size={16} /></span><strong>Marketplace health</strong><p>Admin access is protected. Marketplace records remain sample preview data.</p><span className="admin-sidebar-status"><i /> Preview data</span></div>
         <div className="admin-sidebar-bottom"><Link href="/" className="admin-back-link"><ArrowRight size={14} /> View storefront</Link><span>ELYMART ADMIN · PREVIEW 0.1</span></div>
       </aside>
       {mobileSidebarOpen && <button className="admin-sidebar-scrim" aria-label="Close admin menu" onClick={() => setMobileSidebarOpen(false)} />}
@@ -336,14 +380,14 @@ export default function SuperAdminDashboard() {
               {notificationsOpen && <div className="admin-popover admin-notifications-popover"><div className="admin-popover-heading"><strong>Notifications</strong><button type="button" onClick={() => setNotificationsRead(true)}>Mark all read</button></div><div className="admin-notification-row"><span className="notification-dot orange" /><span><strong>3 seller applications</strong><small>Waiting for a review in the preview queue.</small></span></div><div className="admin-notification-row"><span className="notification-dot blue" /><span><strong>12 orders need attention</strong><small>Example notification · no live orders.</small></span></div><div className="admin-popover-foot">Sample notifications only</div></div>}
             </div>
             <div className="admin-popover-anchor admin-profile-anchor">
-              <button className="admin-profile-button" type="button" aria-expanded={profileOpen} onClick={() => { setProfileOpen((open) => !open); setNotificationsOpen(false); }}><span className="admin-avatar">EA</span><span className="admin-profile-copy"><strong>Elyse Admin</strong><small>Super Admin</small></span><ChevronDown size={13} /></button>
-              {profileOpen && <div className="admin-popover admin-profile-popover"><strong>ElyMart admin preview</strong><small>No authenticated admin account is connected.</small><Link href="/" onClick={() => setProfileOpen(false)}><LogOut size={14} /> Return to storefront</Link></div>}
+              <button className="admin-profile-button" type="button" aria-expanded={profileOpen} onClick={() => { setProfileOpen((open) => !open); setNotificationsOpen(false); }}><span className="admin-avatar">{adminEmail.slice(0, 1).toUpperCase()}</span><span className="admin-profile-copy"><strong>{adminEmail}</strong><small>Super Admin</small></span><ChevronDown size={13} /></button>
+              {profileOpen && <div className="admin-popover admin-profile-popover"><strong>Signed in as super admin</strong><small>{adminEmail}</small><button type="button" onClick={logoutAdmin}><LogOut size={14} /> Sign out</button><Link href="/" onClick={() => setProfileOpen(false)}>Return to storefront</Link></div>}
             </div>
           </div>
         </header>
 
         <div className="admin-content">
-          <div className="admin-demo-banner"><span><ShieldCheck size={13} /> Preview console</span><i /> Sample metrics and admin actions are not connected to a live marketplace.</div>
+          <div className="admin-demo-banner"><span><ShieldCheck size={13} /> Authenticated super admin</span><i /> Marketplace records and operations remain preview-only until connected to a production database.</div>
           <div className="admin-page-heading">
             <div><div className="admin-page-eyebrow"><span>ADMIN</span><ChevronRight size={12} /> <span>{activeView}</span></div><h1>{titleCopy.title}</h1><p>{titleCopy.description}</p></div>
             <div className="admin-page-actions">
@@ -369,7 +413,7 @@ export default function SuperAdminDashboard() {
             onApprove={(id) => changeApplication(id, "Approved")}
             onDecline={(id) => changeApplication(id, "Declined")}
           />}
-          {activeView === "Settings" && <SettingsView maintenanceMode={maintenanceMode} autoApproveReviews={autoApproveReviews} onMaintenance={setMaintenanceMode} onAutoApprove={setAutoApproveReviews} onSave={saveAdminSettings} saved={settingsSaved} />}
+          {activeView === "Settings" && <SettingsView maintenanceMode={maintenanceMode} autoApproveReviews={autoApproveReviews} onMaintenance={setMaintenanceMode} onAutoApprove={setAutoApproveReviews} onSave={saveAdminSettings} saved={settingsSaved} whatsappPhone={whatsappPhone} onWhatsAppPhone={setWhatsappPhone} onSaveWhatsApp={saveWhatsAppNumber} whatsappSaving={whatsappSaving} whatsappError={whatsappError} whatsappSaved={whatsappSaved} />}
           {activeView !== "Dashboard" && activeView !== "Reports & Analytics" && activeView !== "Sellers" && activeView !== "Settings" && <ResourceView
             view={activeView}
             orders={filteredOrders}
@@ -504,8 +548,82 @@ function SellerManagement({ applications, onReview, onApprove, onDecline }: { ap
   return <section className="admin-panel admin-resource-panel"><div className="admin-panel-heading"><div><h2>Seller applications</h2><p>Approvals are simulated in this local preview.</p></div><span className="admin-report-tag"><Users size={13} /> {applications.length} applications</span></div><div className="admin-seller-management-list">{applications.map((application) => <article className="admin-seller-management-row" key={application.id}><span className="admin-seller-avatar large">{application.initials}</span><div className="admin-seller-main"><strong>{application.name}</strong><span>{application.description}</span><small><MapPin size={12} /> {application.location} · {application.category} · {application.products} products</small></div><span className={`admin-application-status ${application.status.toLowerCase()}`}>{application.status}</span><div className="admin-seller-management-actions">{application.status === "Pending" ? <><button className="review-button" onClick={() => onReview(application)}>Review</button><button className="approve-button" onClick={() => onApprove(application.id)}>Approve</button><button className="decline-button" onClick={() => onDecline(application.id)}>Decline</button></> : <button className="review-button" onClick={() => onReview(application)}>View record</button>}</div></article>)}</div></section>;
 }
 
-function SettingsView({ maintenanceMode, autoApproveReviews, onMaintenance, onAutoApprove, onSave, saved }: { maintenanceMode: boolean; autoApproveReviews: boolean; onMaintenance: (checked: boolean) => void; onAutoApprove: (checked: boolean) => void; onSave: () => void; saved: boolean }) {
-  return <section className="admin-panel admin-settings-panel"><div className="admin-panel-heading"><div><h2>Marketplace settings</h2><p>These controls only affect the local demo interface.</p></div><Settings size={17} /></div><div className="admin-settings-list"><label><span><strong>Maintenance mode</strong><small>Display a preview notice to visitors. Does not affect the public storefront.</small></span><input type="checkbox" checked={maintenanceMode} onChange={(event) => onMaintenance(event.target.checked)} /><i /></label><label><span><strong>Auto-approve sample reviews</strong><small>Demo preference only. A live system should review user content server-side.</small></span><input type="checkbox" checked={autoApproveReviews} onChange={(event) => onAutoApprove(event.target.checked)} /><i /></label><div className="admin-settings-note"><ShieldCheck size={15} /> Authentication, roles, and marketplace configuration are not connected.</div></div><div className="admin-settings-footer"><span>Saved in this browser only</span><button type="button" className="admin-primary-button" onClick={onSave}>{saved ? <><Check size={14} /> Saved</> : <>Save preview settings <ArrowRight size={14} /></>}</button></div></section>;
+function SettingsView({
+  maintenanceMode,
+  autoApproveReviews,
+  onMaintenance,
+  onAutoApprove,
+  onSave,
+  saved,
+  whatsappPhone,
+  onWhatsAppPhone,
+  onSaveWhatsApp,
+  whatsappSaving,
+  whatsappError,
+  whatsappSaved,
+}: {
+  maintenanceMode: boolean;
+  autoApproveReviews: boolean;
+  onMaintenance: (checked: boolean) => void;
+  onAutoApprove: (checked: boolean) => void;
+  onSave: () => void;
+  saved: boolean;
+  whatsappPhone: string;
+  onWhatsAppPhone: (phone: string) => void;
+  onSaveWhatsApp: () => void;
+  whatsappSaving: boolean;
+  whatsappError: string;
+  whatsappSaved: boolean;
+}) {
+  return (
+    <section className="admin-panel admin-settings-panel">
+      <div className="admin-panel-heading">
+        <div><h2>Marketplace settings</h2><p>Set the customer WhatsApp contact and local preview preferences.</p></div>
+        <Settings size={17} />
+      </div>
+      <div className="admin-settings-list">
+        <label>
+          <span><strong>Maintenance mode</strong><small>Preview preference only; it does not take the public storefront offline.</small></span>
+          <input type="checkbox" checked={maintenanceMode} onChange={(event) => onMaintenance(event.target.checked)} />
+          <i />
+        </label>
+        <label>
+          <span><strong>Auto-approve sample reviews</strong><small>Demo preference only. Live user content needs server-side moderation.</small></span>
+          <input type="checkbox" checked={autoApproveReviews} onChange={(event) => onAutoApprove(event.target.checked)} />
+          <i />
+        </label>
+      </div>
+      <section className="admin-whatsapp-setting" aria-labelledby="admin-whatsapp-title">
+        <div className="admin-whatsapp-setting-heading">
+          <span><MessageCircle size={16} /><strong id="admin-whatsapp-title">WhatsApp customer support</strong></span>
+          <small>Shown publicly in the storefront footer</small>
+        </div>
+        <p>Enter the full international number, including its country code. Customers will be sent to WhatsApp to start a chat; messages are not stored by ElyMart.</p>
+        <label className="admin-whatsapp-label" htmlFor="admin-whatsapp-number">Support number</label>
+        <div className="admin-whatsapp-form-row">
+          <input
+            id="admin-whatsapp-number"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            maxLength={40}
+            value={whatsappPhone}
+            onChange={(event) => onWhatsAppPhone(event.target.value)}
+            placeholder="+250 7XX XXX XXX"
+          />
+          <button type="button" className="admin-primary-button" onClick={onSaveWhatsApp} disabled={whatsappSaving}>
+            {whatsappSaving ? "Saving…" : whatsappSaved ? <><Check size={13} /> Saved</> : "Save WhatsApp number"}
+          </button>
+        </div>
+        {whatsappError && <p className="admin-whatsapp-error" role="alert">{whatsappError}</p>}
+        <div className="admin-settings-note"><ShieldCheck size={15} /> Stored on this local server for the preview. Use shared database storage for production or multiple server instances.</div>
+      </section>
+      <div className="admin-settings-footer">
+        <span>Preview preferences save in this browser</span>
+        <button type="button" className="admin-primary-button" onClick={onSave}>{saved ? <><Check size={14} /> Saved</> : <>Save preview preferences <ArrowRight size={14} /></>}</button>
+      </div>
+    </section>
+  );
 }
 
 function ResourceView({ view, orders, products, searchTerm }: { view: AdminView; orders: SampleOrder[]; products: Product[]; searchTerm: string }) {
@@ -566,7 +684,7 @@ function viewCopy(view: AdminView) {
     Reviews: { title: "Reviews", description: "Example moderation queue. No review data is sourced from customers." },
     "Reports & Analytics": { title: "Reports & analytics", description: "Explore illustrative marketplace trends and sample performance metrics." },
     "Support Tickets": { title: "Support tickets", description: "Review example support requests for the admin concept." },
-    Settings: { title: "Settings", description: "Adjust local demo preferences. These settings do not affect a live shop." },
+    Settings: { title: "Settings", description: "Manage the customer WhatsApp contact and local preview preferences." },
   };
   return copy[view];
 }
